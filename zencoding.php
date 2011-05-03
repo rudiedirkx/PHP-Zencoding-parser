@@ -120,15 +120,16 @@ function zen_parse( $input ) {
 
 	if ( is_int(strpos($input, '{')) ) {
 		// build tree
-		$tree = "array('".strtr($input, array(
-			'}{' => "'), array('",
-			'{' => "', array(array('",
-			'}' => "'))",
-		)).')';
+		$tree = '["'.strtr(addslashes($input), array(
+			'}{' => '"], ["',
+			'{' => '", [["',
+			'}' => '"]]',
+		)).']';
 		$tree = strtr($tree, array(
-			")')" => '))',
+			']"]]' => ']]]',
 		));
-		eval('$_tree = '.$tree.';'); // yuck!
+//echo $tree."\n";
+		$_tree = json_decode($tree);
 		$root = array_shift($_tree);
 		$_tree = $_tree[0];
 		$tree = array($root => zen_tree($_tree));
