@@ -108,8 +108,18 @@ function zen_tree( $_tree ) {
 }
 
 function zen_parse( $input ) {
+	if ( is_array($input) ) {
+		$html = '';
+		foreach ( $input AS $elements => $children ) {
+//			var_dump($elements);
+			$html .= zen_parse($elements);
+			$html .= zen_parse($children);
+		}
+		return $html;
+	}
+
 	if ( is_int(strpos($input, '{')) ) {
-		// build stacks
+		// build tree
 		$tree = "array('".strtr($input, array(
 			'}{' => "'), array('",
 			'{' => "', array(array('",
@@ -118,10 +128,13 @@ function zen_parse( $input ) {
 		$tree = strtr($tree, array(
 			")')" => '))',
 		));
-		eval('$_tree = '.$tree.';');
+		eval('$_tree = '.$tree.';'); // yuck!
 		$root = array_shift($_tree);
 		$_tree = $_tree[0];
 		$tree = array($root => zen_tree($_tree));
+print_r($tree);
+return '';
+		return zen_parse($tree);
 
 		// TEMP:
 		$input = str_replace('{', '', str_replace('}', '', $input));
